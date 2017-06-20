@@ -34,7 +34,6 @@ import (
 
 var (
 	cfgFile string
-	Verbose bool
 )
 
 var RootCmd = &cobra.Command{
@@ -62,8 +61,6 @@ func init() {
 	viper.BindPFlag("vtmAPIUrl", RootCmd.PersistentFlags().Lookup("vtmAPIUrl"))
 	viper.BindPFlag("vtmAPIUser", RootCmd.PersistentFlags().Lookup("vtmAPIUser"))
 	viper.BindPFlag("vtmAPIPass", RootCmd.PersistentFlags().Lookup("vtmAPIPass"))
-
-	RootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "Verbose output.")
 }
 
 func initConfig() {

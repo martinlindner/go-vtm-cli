@@ -1,0 +1,3 @@
+vtmAPIUrl: http://localhost:9070
+vtmAPIUser: admin
+vtmAPIPass: default
