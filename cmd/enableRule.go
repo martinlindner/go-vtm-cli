@@ -72,12 +72,21 @@ func enableRule(targetVserver, targetRule string) {
 
 		rules := *r.Basic.RequestRules
 		hasUpdates := false
+		hasRule := false
 
 		for index, element := range rules {
-			if strings.HasPrefix(element, "/") && strings.HasSuffix(element, targetRule) {
-				rules[index] = strings.TrimPrefix(element, "/")
-				hasUpdates = true
+			if strings.HasSuffix(element, targetRule) {
+				hasRule = true
+				if strings.HasPrefix(element, "/") {
+					rules[index] = strings.TrimPrefix(element, "/")
+					hasUpdates = true
+				}
 			}
+		}
+
+		if !hasRule {
+			fmt.Print(vserver, ":\t(no rule)\n")
+			continue
 		}
 
 		if hasUpdates {
