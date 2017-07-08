@@ -20,7 +20,7 @@
 
 package main
 
-import "gitlab.gaba.co.jp/gaba-infra/go-vtm-cli/cmd"
+import "github.com/martinlindner/go-vtm-cli/cmd"
 
 func main() {
 	cmd.Execute()
