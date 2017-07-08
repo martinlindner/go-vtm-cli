@@ -24,28 +24,36 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
+	"strconv"
 
 	"github.com/gobwas/glob"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var disableRuleCmd = &cobra.Command{
-	Use:   "disableRule [vserver] [target rule]",
-	Short: "Disable [target rule] on [vserver].",
+// setTimeoutCmd represents the setTimeout command
+var setTimeoutCmd = &cobra.Command{
+	Use:   "setTimeout [vserver] [timeout]",
+	Short: "Set connection timeout for [vserver] to [timeout].",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Missing argument(s)")
 		}
+
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		disableRule(args[0], args[1])
+		timeout, err := strconv.Atoi(args[1])
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		setTimeout(args[0], timeout)
 	},
 }
 
-func disableRule(targetVserver string, targetRule string) {
+func setTimeout(targetVserver string, timeout int) {
 	if dryRun {
 		fmt.Println("Note: Dry-Run!")
 	}
@@ -70,32 +78,24 @@ func disableRule(targetVserver string, targetRule string) {
 			log.Fatal(err)
 		}
 
-		rules := *r.Basic.RequestRules
-		hasUpdates := false
+		currentTimeout := *r.Connection.Timeout
 
-		for index, element := range rules {
-			if !strings.HasPrefix(element, "/") && strings.HasSuffix(element, targetRule) {
-				rules[index] = "/" + element
-				hasUpdates = true
-			}
-		}
+		if currentTimeout != timeout {
+			fmt.Print(vserver, ":\t", currentTimeout, "s -> ", timeout, "s\n")
 
-		if hasUpdates {
-			fmt.Print(vserver, ":\t", targetRule, " [enabled] -> [disabled]\n")
 			if !dryRun {
-				r.Basic.RequestRules = &rules
-
+				*r.Connection.Timeout = timeout
 				_, err = client.Set(r)
 				if err != nil {
 					log.Fatal(err)
 				}
 			}
 		} else {
-			fmt.Print(vserver, ":\t", targetRule, " [disabled] (no change)\n")
+			fmt.Print(vserver, ":\t", currentTimeout, "s (no change)\n")
 		}
 	}
 }
 
 func init() {
-	vserverCmd.AddCommand(disableRuleCmd)
+	vserverCmd.AddCommand(setTimeoutCmd)
 }

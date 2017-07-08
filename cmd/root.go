@@ -34,6 +34,7 @@ import (
 
 var (
 	cfgFile string
+	dryRun  bool
 )
 
 var RootCmd = &cobra.Command{
@@ -57,6 +58,8 @@ func init() {
 	RootCmd.PersistentFlags().String("vtmAPIUrl", "http://localhost:9070/", "vTM API URL.")
 	RootCmd.PersistentFlags().String("vtmAPIUser", "admin", "vTM API user.")
 	RootCmd.PersistentFlags().String("vtmAPIPass", "default", "vTM API password.")
+
+	RootCmd.PersistentFlags().BoolVarP(&dryRun, "dry-run", "d", false, "Don't actually apply any changes.")
 
 	viper.BindPFlag("vtmAPIUrl", RootCmd.PersistentFlags().Lookup("vtmAPIUrl"))
 	viper.BindPFlag("vtmAPIUser", RootCmd.PersistentFlags().Lookup("vtmAPIUser"))

@@ -26,25 +26,31 @@ import (
 	"log"
 	"strings"
 
+	"github.com/gobwas/glob"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var enableRuleCmd = &cobra.Command{
-	Use:   "enableRule [target rule]",
-	Short: "Enable [target rule] on all vservers.",
+	Use:   "enableRule [vserver] [target rule]",
+	Short: "Enable [target rule] on [vserver].",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 1 {
-			return errors.New("Missing argument. Please provide the [target rule] name.")
+		if len(args) != 2 {
+			return errors.New("Missing argument(s)")
 		}
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		enableRule(args[0])
+		enableRule(args[0], args[1])
 	},
 }
 
-func enableRule(targetRule string) {
+func enableRule(targetVserver, targetRule string) {
+	if dryRun {
+		fmt.Println("Note: Dry-Run!")
+	}
+
+	vserverGlob := glob.MustCompile(targetVserver)
 	client := initClient()
 
 	fmt.Println("Getting vserver list from", viper.Get("vtmAPIUrl"))
@@ -55,36 +61,41 @@ func enableRule(targetRule string) {
 	fmt.Println("Response:", resp.Status)
 
 	for _, vserver := range serverlist {
-		fmt.Println("Processing vserver", vserver, "..")
-		r, resp, err := client.GetVirtualServer(vserver)
+		if !vserverGlob.Match(vserver) {
+			continue
+		}
+
+		r, _, err := client.GetVirtualServer(vserver)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Response:", resp.Status)
 
 		rules := *r.Basic.RequestRules
-		wasUpdated := false
+		hasUpdates := false
 
 		for index, element := range rules {
 			if strings.HasPrefix(element, "/") && strings.HasSuffix(element, targetRule) {
 				rules[index] = strings.TrimPrefix(element, "/")
-				wasUpdated = true
+				hasUpdates = true
 			}
 		}
 
-		if wasUpdated {
-			r.Basic.RequestRules = &rules
+		if hasUpdates {
+			fmt.Print(vserver, ":\t", targetRule, " [disabled] -> [enabled]\n")
+			if !dryRun {
+				r.Basic.RequestRules = &rules
 
-			resp, err = client.Set(r)
-			if err != nil {
-				log.Fatal(err)
+				_, err = client.Set(r)
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
-			fmt.Println("Response:", resp.Status)
+		} else {
+			fmt.Print(vserver, ":\t", targetRule, " [enabled] (no change)\n")
 		}
 	}
 }
 
 func init() {
 	vserverCmd.AddCommand(enableRuleCmd)
-
 }

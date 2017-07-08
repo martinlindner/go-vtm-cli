@@ -24,78 +24,79 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
+	"strconv"
 
 	"github.com/gobwas/glob"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var disableRuleCmd = &cobra.Command{
-	Use:   "disableRule [vserver] [target rule]",
-	Short: "Disable [target rule] on [vserver].",
+// setMaxReplyTimeCmd represents the setMaxReplyTime command
+var setMaxReplyTimeCmd = &cobra.Command{
+	Use:   "setMaxReplyTime [pool] [maxReplyTime]",
+	Short: "Set maximum reply time for [pool] to [maxReplyTime].",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Missing argument(s)")
 		}
+
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		disableRule(args[0], args[1])
+		maxReplyTime, err := strconv.Atoi(args[1])
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		setMaxReplyTime(args[0], maxReplyTime)
 	},
 }
 
-func disableRule(targetVserver string, targetRule string) {
+func setMaxReplyTime(targetPool string, maxReplyTime int) {
 	if dryRun {
 		fmt.Println("Note: Dry-Run!")
 	}
 
-	vserverGlob := glob.MustCompile(targetVserver)
+	poolGlob := glob.MustCompile(targetPool)
 	client := initClient()
 
-	fmt.Println("Getting vserver list from", viper.Get("vtmAPIUrl"))
-	serverlist, resp, err := client.ListVirtualServers()
+	fmt.Println("Getting pool list from", viper.Get("vtmAPIUrl"))
+	poollist, resp, err := client.ListPools()
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Response:", resp.Status)
 
-	for _, vserver := range serverlist {
-		if !vserverGlob.Match(vserver) {
+	for _, pool := range poollist {
+		if !poolGlob.Match(pool) {
 			continue
 		}
 
-		r, _, err := client.GetVirtualServer(vserver)
+		r, _, err := client.GetPool(pool)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		rules := *r.Basic.RequestRules
-		hasUpdates := false
+		currentMaxReplyTime := *r.Connection.MaxReplyTime
 
-		for index, element := range rules {
-			if !strings.HasPrefix(element, "/") && strings.HasSuffix(element, targetRule) {
-				rules[index] = "/" + element
-				hasUpdates = true
-			}
-		}
+		if currentMaxReplyTime != maxReplyTime {
+			fmt.Print(pool, ":\t", currentMaxReplyTime, "s -> ", maxReplyTime, "s\n")
 
-		if hasUpdates {
-			fmt.Print(vserver, ":\t", targetRule, " [enabled] -> [disabled]\n")
 			if !dryRun {
-				r.Basic.RequestRules = &rules
-
+				*r.Connection.MaxReplyTime = maxReplyTime
 				_, err = client.Set(r)
 				if err != nil {
 					log.Fatal(err)
 				}
 			}
 		} else {
-			fmt.Print(vserver, ":\t", targetRule, " [disabled] (no change)\n")
+			fmt.Print(pool, ":\t", currentMaxReplyTime, "s (no change)\n")
 		}
+
 	}
 }
 
 func init() {
-	vserverCmd.AddCommand(disableRuleCmd)
+	poolCmd.AddCommand(setMaxReplyTimeCmd)
 }

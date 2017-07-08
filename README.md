@@ -1,6 +1,6 @@
 # go-vtm-cli
 
-go-vtm-cli is a cli tool to control Brocade Virtual Traffic Manager via REST API.
+go-vtm-cli is a cli tool to control Brocade Virtual Traffic Managers via REST API.
 
 ## usage
 
