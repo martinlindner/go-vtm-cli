@@ -36,7 +36,7 @@ import (
 // getTimeoutCmd represents the getTimeout command
 var getTimeoutCmd = &cobra.Command{
 	Use:   "getTimeout [vserver]",
-	Short: "Get connection timeout(s) for [vserver].",
+	Short: "Get connection timeout(s) for [vserver]",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
 			return errors.New("Missing argument(s)")

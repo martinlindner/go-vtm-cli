@@ -27,7 +27,7 @@ import (
 // vserverCmd represents the vserver command
 var vserverCmd = &cobra.Command{
 	Use:   "vserver",
-	Short: "go-vtm-cli vserver subcommands.",
+	Short: "server subcommands",
 }
 
 func init() {

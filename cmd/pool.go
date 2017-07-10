@@ -27,7 +27,7 @@ import (
 // vserverCmd represents the vserver command
 var poolCmd = &cobra.Command{
 	Use:   "pool",
-	Short: "go-vtm-cli pool subcommands.",
+	Short: "pool subcommands",
 }
 
 func init() {

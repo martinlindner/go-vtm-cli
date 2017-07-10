@@ -34,7 +34,7 @@ import (
 // setTimeoutCmd represents the setTimeout command
 var setTimeoutCmd = &cobra.Command{
 	Use:   "setTimeout [vserver] [timeout]",
-	Short: "Set connection timeout for [vserver] to [timeout].",
+	Short: "Set connection timeout for [vserver] to [timeout]",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Missing argument(s)")

@@ -34,7 +34,7 @@ import (
 // setMaxReplyTimeCmd represents the setMaxReplyTime command
 var setMaxReplyTimeCmd = &cobra.Command{
 	Use:   "setMaxReplyTime [pool] [maxReplyTime]",
-	Short: "Set maximum reply time for [pool] to [maxReplyTime].",
+	Short: "Set maximum reply time for [pool] to [maxReplyTime]",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Missing argument(s)")

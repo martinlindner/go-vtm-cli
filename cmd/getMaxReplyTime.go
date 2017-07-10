@@ -35,7 +35,7 @@ import (
 // getMaxReplyTimeCmd represents the getMaxReplyTime command
 var getMaxReplyTimeCmd = &cobra.Command{
 	Use:   "getMaxReplyTime [pool]",
-	Short: "Get maximum reply time for [pool].",
+	Short: "Get maximum reply time for [pool]",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
 			return errors.New("Missing argument(s)")

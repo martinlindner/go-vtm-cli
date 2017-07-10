@@ -33,7 +33,7 @@ import (
 
 var disableRuleCmd = &cobra.Command{
 	Use:   "disableRule [vserver] [target rule]",
-	Short: "Disable [target rule] on [vserver].",
+	Short: "Disable [target rule] on [vserver]",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Missing argument(s)")
