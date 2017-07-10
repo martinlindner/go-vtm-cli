@@ -55,7 +55,7 @@ var setMaxReplyTimeCmd = &cobra.Command{
 
 func setMaxReplyTime(targetPool string, maxReplyTime int) {
 	if dryRun {
-		fmt.Println("Note: Dry-Run!")
+		fmt.Println(dryRunC)
 	}
 
 	poolGlob := glob.MustCompile(targetPool)

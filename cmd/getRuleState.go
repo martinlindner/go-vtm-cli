@@ -29,7 +29,6 @@ import (
 	"text/tabwriter"
 
 	"github.com/gobwas/glob"
-	"github.com/mgutz/ansi"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -86,9 +85,9 @@ func getRuleState(targetVserver, targetRule string) {
 			if ruleGlob.Match(currentRule) {
 				hasRule = true
 
-				currentRuleState := ansi.Color("enabled", "green")
+				currentRuleState := enabledC
 				if strings.HasPrefix(element, "/") {
-					currentRuleState = ansi.Color("disabled", "red")
+					currentRuleState = disabledC
 				}
 
 				fmt.Fprint(w, "\t- ", currentRule, ":\t[", currentRuleState, "]\n")

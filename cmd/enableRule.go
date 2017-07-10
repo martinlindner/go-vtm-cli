@@ -47,7 +47,7 @@ var enableRuleCmd = &cobra.Command{
 
 func enableRule(targetVserver, targetRule string) {
 	if dryRun {
-		fmt.Println("Note: Dry-Run!")
+		fmt.Println(dryRunC)
 	}
 
 	vserverGlob := glob.MustCompile(targetVserver)
@@ -90,7 +90,7 @@ func enableRule(targetVserver, targetRule string) {
 		}
 
 		if hasUpdates {
-			fmt.Print(vserver, ":\t", targetRule, " [disabled] -> [enabled]\n")
+			fmt.Print(vserver, ":\t", targetRule, " [disabled] -> [", enabledC, "]\n")
 			if !dryRun {
 				r.Basic.RequestRules = &rules
 
@@ -100,7 +100,7 @@ func enableRule(targetVserver, targetRule string) {
 				}
 			}
 		} else {
-			fmt.Print(vserver, ":\t", targetRule, " [enabled] (no change)\n")
+			fmt.Print(vserver, ":\t", targetRule, " [", enabledC, "] (no change)\n")
 		}
 	}
 }

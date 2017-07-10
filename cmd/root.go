@@ -27,14 +27,18 @@ import (
 	"os"
 
 	"github.com/martinlindner/go-vtm"
+	"github.com/mgutz/ansi"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var (
-	cfgFile string
-	dryRun  bool
+	cfgFile   string
+	dryRun    bool
+	dryRunC   = ansi.Color("dry-run!", "red+bh")
+	enabledC  = ansi.Color("enabled", "green")
+	disabledC = ansi.Color("disabled", "red")
 )
 
 var RootCmd = &cobra.Command{
@@ -78,12 +82,12 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".go-vtm-cli" (without extension).
+		// Search config file (.go-vtm-cli.yaml) in home directory.
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".go-vtm-cli")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	viper.AutomaticEnv() // Read in environment variables that match.
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
@@ -96,6 +100,8 @@ func initClient() stingray.Client {
 	vtmAPIUser := viper.Get("vtmAPIUser").(string)
 	vtmAPIPass := viper.Get("vtmAPIPass").(string)
 
+	// To
+	// TODO: make this configurable
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}

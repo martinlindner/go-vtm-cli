@@ -55,7 +55,7 @@ var setTimeoutCmd = &cobra.Command{
 
 func setTimeout(targetVserver string, timeout int) {
 	if dryRun {
-		fmt.Println("Note: Dry-Run!")
+		fmt.Println(dryRunC)
 	}
 
 	vserverGlob := glob.MustCompile(targetVserver)
